@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''
 Read characters from a keypad and
 run mpd commands for them.
@@ -65,23 +65,21 @@ def doloop():
     m = mpd.MPDClient()
     m.connect('localhost', 6600)
     while True:
-	s = m.currentsong()
-	print now(), 'Now playing:\r'
-	print '%(title)s; %(artist)s; %(album)s\r' % s
-	key = sys.stdin.read(1)
-	if key == '\x1b':
-	    key += sys.stdin.read(1)
-	    if key == '\x1b[':
-		key += sys.stdin.read(1)
-		if '\x1b[1' <= key <= '\x1b[9':
-		    key += sys.stdin.read(1)
-	#while True:
-	#    options = [ i for i in commands.keys() if i.startswith(key) ]
-	#    if len(options) <= 1:
-	#	break
-	#    key += sys.stdin.read(1)
+        print(now(), 'Waiting for key...\r')
+        key = sys.stdin.read(1)
+        if key == '\x1b':
+            key += sys.stdin.read(1)
+            if key == '\x1b[':
+                key += sys.stdin.read(1)
+                if '\x1b[1' <= key <= '\x1b[9':
+                    key += sys.stdin.read(1)
+        #while True:
+        #    options = [ i for i in commands.keys() if i.startswith(key) ]
+        #    if len(options) <= 1:
+        #       break
+        #    key += sys.stdin.read(1)
         c = commands.get(key, 'unknown')
-        print now(), 'Read %s => %s\r' % (`key`, c)
+        print(now(), 'Read %s => %s\r' % (repr(key), c))
         if c == 'play':
             m.play()
         elif c == 'pause':
@@ -105,23 +103,23 @@ def doloop():
         elif c == 'random off':
             m.random(0)
         elif c.startswith('playlist'):
-	    m.stop()
-	    m.clear()
-	    m.setvol(100)
-	    m.load(c)
-	    m.play()
+            m.stop()
+            m.clear()
+            m.setvol(100)
+            m.load(c)
+            m.play()
         else:
-            print 'Unrecognised command %s.\r' % `c`
+            print('Unrecognised command %s.\r' % repr(c))
 
 def main():
-    print now(), 'Started %s' % (sys.argv[0])
+    print(now(), 'Started %s' % (sys.argv[0]))
     time.sleep(1) # avoid respawning too fast on failure
-    keys = commands.keys()
+    keys = list(commands.keys())
     keys.sort()
     for key in keys:
         action = commands[key]
-        print '%s => %s' % (`key`, action)
-    print 'Type mpd commands. Press "q" to quit.'
+        print('%s => %s' % (repr(key), action))
+    print('Type mpd commands. Press "q" to quit.')
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
