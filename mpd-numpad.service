@@ -1,0 +1,15 @@
+[Unit]
+Description=mpd numpad input
+
+[Service]
+Type=simple
+User=mpc
+ExecStartPre=/bin/chvt 7
+ExecStart=/home/pi/bin/mpd-numpad
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty7
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

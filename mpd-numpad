@@ -1,0 +1,135 @@
+#!/usr/bin/python
+'''
+Read characters from a keypad and
+run mpd commands for them.
+
+Key mappings
++-  volume
+6   next track
+4   previous track
+0   stop
+.   pause
+Enter play
+*   random play on
+/   random play off
+1   load playlist 1
+2   load playlist 2
+3   load playlist 3
+'''
+
+import sys, time
+import tty, termios
+import mpd
+
+commands = {
+        # numlock on
+        '\r': 'play',   # enter
+        '\x7f': 'stop', # backspace
+        '.': 'pause',
+        '-': 'previous',
+        '*': 'random on',
+        '+': 'next',
+        '/': 'random off',
+        '0': 'stop',
+        '1': 'playlist 1',
+        '2': 'playlist 2',
+        '3': 'playlist 3',
+        '4': 'playlist 4',
+        '5': 'playlist 5',
+        '6': 'playlist 6',
+        '7': 'playlist 7',
+        '8': 'playlist 8',
+        '9': 'playlist 9',
+
+        # numlock off
+        '\x1b[2~': 'stop', # 0/Insert
+        '\x1b[4~': 'playlist 1', # 1/End
+        '\x1b[B':  'playlist 2', # 2/Down
+        '\x1b[6~': 'playlist 3', # 3/Page Down
+        '\x1b[D':  'playlist 4', # 4/Left
+        '\x1b[E':  'playlist 5', # 5/"5"
+        '\x1b[C':  'playlist 6', # 6/Right
+        '\x1b[1~': 'playlist 7', # 7/Home
+        '\x1b[A':  'playlist 8', # 8/Up
+        '\x1b[5~': 'playlist 9', # 9/Page Up
+
+        # full keyboard, not keypad:
+        '\x03': 'quit', # ^c
+        'q': 'quit',
+        }
+
+def now():
+    return time.strftime('%Y-%m-%d %H:%M:%S')
+
+def doloop():
+    m = mpd.MPDClient()
+    m.connect('localhost', 6600)
+    while True:
+	s = m.currentsong()
+	print now(), 'Now playing:\r'
+	print '%(title)s; %(artist)s; %(album)s\r' % s
+	key = sys.stdin.read(1)
+	if key == '\x1b':
+	    key += sys.stdin.read(1)
+	    if key == '\x1b[':
+		key += sys.stdin.read(1)
+		if '\x1b[1' <= key <= '\x1b[9':
+		    key += sys.stdin.read(1)
+	#while True:
+	#    options = [ i for i in commands.keys() if i.startswith(key) ]
+	#    if len(options) <= 1:
+	#	break
+	#    key += sys.stdin.read(1)
+        c = commands.get(key, 'unknown')
+        print now(), 'Read %s => %s\r' % (`key`, c)
+        if c == 'play':
+            m.play()
+        elif c == 'pause':
+            m.pause()
+        elif c == 'stop':
+            m.stop()
+        elif c == 'quit':
+            return
+        elif c == 'next':
+            m.next()
+        elif c == 'previous':
+            m.previous()
+        elif c == 'vol up':
+            s = m.status()
+            m.setvol(min(100, int(s['volume']) + 1))
+        elif c == 'vol down':
+            s = m.status()
+            m.setvol(max(0, int(s['volume']) - 1))
+        elif c == 'random on':
+            m.random(1)
+        elif c == 'random off':
+            m.random(0)
+        elif c.startswith('playlist'):
+	    m.stop()
+	    m.clear()
+	    m.setvol(100)
+	    m.load(c)
+	    m.play()
+        else:
+            print 'Unrecognised command %s.\r' % `c`
+
+def main():
+    print now(), 'Started %s' % (sys.argv[0])
+    time.sleep(1) # avoid respawning too fast on failure
+    keys = commands.keys()
+    keys.sort()
+    for key in keys:
+        action = commands[key]
+        print '%s => %s' % (`key`, action)
+    print 'Type mpd commands. Press "q" to quit.'
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        doloop()
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+main()
+
+# vim: set sw=4
