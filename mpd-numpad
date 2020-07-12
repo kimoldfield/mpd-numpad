@@ -107,7 +107,14 @@ def doloop():
         print(now(), 'Read %s => %s\r' % (repr(key), action))
         if action == 'quit':
             return
-        doaction(m, action)
+        try:
+            doaction(m, action)
+        except mpd.base.ConnectionError as err:
+            # connection timeout - reconnect and try again
+            print('MPD error: %s\r' % err)
+            print('Re-connecting and trying again\r')
+            m.connect('localhost', 6600)
+            doaction(m, action)
 
 def main():
     print(now(), 'Started %s' % (sys.argv[0]))
