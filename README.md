@@ -1,6 +1,6 @@
 # mpd numpad
 
-Use a numeric keypad to control a MPD server.
+Use a numeric keypad to control a [MPD server](https://www.musicpd.org/).
 
 Written to allow a USB numeric keypad to be used to control mpd running on a headless Raspberry Pi.
 
@@ -20,7 +20,7 @@ Press "q" to exit.
 
 # Prerequisites
 
-- [mpd server](https://www.musicpd.org/)
+- mpd server
 - python3
 - python3 mpd library
 
