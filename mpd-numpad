@@ -61,6 +61,36 @@ commands = {
 def now():
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
+def doaction(m, action):
+    if action == 'play':
+        m.play()
+    elif action == 'pause':
+        m.pause()
+    elif action == 'stop':
+        m.stop()
+    elif action == 'next':
+        m.next()
+    elif action == 'previous':
+        m.previous()
+    elif action == 'vol up':
+        s = m.status()
+        m.setvol(min(100, int(s['volume']) + 1))
+    elif action == 'vol down':
+        s = m.status()
+        m.setvol(max(0, int(s['volume']) - 1))
+    elif action == 'random on':
+        m.random(1)
+    elif action == 'random off':
+        m.random(0)
+    elif action.startswith('playlist'):
+        m.stop()
+        m.clear()
+        m.setvol(100)
+        m.load(action)
+        m.play()
+    else:
+        print('Unrecognised command %s.\r' % repr(action))
+
 def doloop():
     m = mpd.MPDClient()
     m.connect('localhost', 6600)
@@ -73,43 +103,11 @@ def doloop():
                 key += sys.stdin.read(1)
                 if '\x1b[1' <= key <= '\x1b[9':
                     key += sys.stdin.read(1)
-        #while True:
-        #    options = [ i for i in commands.keys() if i.startswith(key) ]
-        #    if len(options) <= 1:
-        #       break
-        #    key += sys.stdin.read(1)
-        c = commands.get(key, 'unknown')
-        print(now(), 'Read %s => %s\r' % (repr(key), c))
-        if c == 'play':
-            m.play()
-        elif c == 'pause':
-            m.pause()
-        elif c == 'stop':
-            m.stop()
-        elif c == 'quit':
+        action = commands.get(key, 'unknown')
+        print(now(), 'Read %s => %s\r' % (repr(key), action))
+        if action == 'quit':
             return
-        elif c == 'next':
-            m.next()
-        elif c == 'previous':
-            m.previous()
-        elif c == 'vol up':
-            s = m.status()
-            m.setvol(min(100, int(s['volume']) + 1))
-        elif c == 'vol down':
-            s = m.status()
-            m.setvol(max(0, int(s['volume']) - 1))
-        elif c == 'random on':
-            m.random(1)
-        elif c == 'random off':
-            m.random(0)
-        elif c.startswith('playlist'):
-            m.stop()
-            m.clear()
-            m.setvol(100)
-            m.load(c)
-            m.play()
-        else:
-            print('Unrecognised command %s.\r' % repr(c))
+        doaction(m, action)
 
 def main():
     print(now(), 'Started %s' % (sys.argv[0]))
