@@ -18,9 +18,20 @@ Pressing a key will perform the coresponding action.
 
 Press "q" to exit.
 
+# Prerequisites
+
+- [mpd server](https://www.musicpd.org/)
+- python3
+- python3 mpd library
+
+On a Raspberry Pi running Raspbian these can be installed by running
+```
+sudo apt install mpd python3 python3-mpd
+```
+
 # Installation
 
-Run the following commands:
+From within the repository run the following commands:
 ```
 sudo -i
 mkdir -p ~pi/bin
