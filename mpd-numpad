@@ -1,20 +1,17 @@
 #!/usr/bin/python3
 '''
-Read characters from a keypad and
+Read key presses from a numeric keypad and
 run mpd commands for them.
 
-Key mappings
-+-  volume
-6   next track
-4   previous track
-0   stop
-.   pause
-Enter play
-*   random play on
-/   random play off
-1   load playlist 1
-2   load playlist 2
-3   load playlist 3
+Key mappings:
+Enter  play
+Backspace  Stop
+.      pause
++-     Next/Previous track
+*      Random play on
+/      Random play off
+0-9    load playlist 0-9
+q      Quit/Exit
 '''
 
 import sys, time
