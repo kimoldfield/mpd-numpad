@@ -17,7 +17,7 @@ Enter play
 3   load playlist 3
 '''
 
-import sys, time
+import sys, time, argparse
 import tty, termios
 import mpd
 
@@ -91,9 +91,9 @@ def doaction(m, action):
     else:
         print('Unrecognised command %s.\r' % repr(action))
 
-def doloop():
+def doloop(host):
     m = mpd.MPDClient()
-    m.connect('localhost', 6600)
+    m.connect(host, 6600)
     while True:
         print(now(), 'Waiting for key...\r')
         key = sys.stdin.read(1)
@@ -119,17 +119,23 @@ def doloop():
 def main():
     print(now(), 'Started %s' % (sys.argv[0]))
     time.sleep(1) # avoid respawning too fast on failure
+    parser = argparse.ArgumentParser(description=
+        'Read characters from a keypad and run mpd commands for them')
+    parser.add_argument('--host', '--server', '-s', default='localhost')
+    args = parser.parse_args()
+
     keys = list(commands.keys())
     keys.sort()
     for key in keys:
         action = commands[key]
         print('%s => %s' % (repr(key), action))
-    print('Type mpd commands. Press "q" to quit.')
+
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
+    print('Type mpd commands. Press "q" to quit.')
     try:
         tty.setraw(fd)
-        doloop()
+        doloop(args.host)
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
