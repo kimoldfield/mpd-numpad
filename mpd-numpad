@@ -89,6 +89,7 @@ def doaction(m, action):
         findplaylist = action.lower()
         for p in m.listplaylists():
             if p['playlist'].lower().startswith(findplaylist):
+                print('Loading', p['playlist'], '\r')
                 m.stop()
                 m.clear()
                 m.setvol(100)
