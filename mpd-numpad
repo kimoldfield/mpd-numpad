@@ -10,11 +10,11 @@ Key mappings
 0   stop
 .   pause
 Enter play
-*   random play on
-/   random play off
-1   load playlist 1
-2   load playlist 2
-3   load playlist 3
+*    random play on
+/    random play off
+0    load the first playlist who's name starts with "playlist 0"
+1    load the first playlist who's name starts with "playlist 1"
+2..9 load playlist 2 to 9
 '''
 
 import sys, time, argparse
@@ -30,7 +30,7 @@ commands = {
         '*': 'random on',
         '+': 'next',
         '/': 'random off',
-        '0': 'stop',
+        '0': 'playlist 0',
         '1': 'playlist 1',
         '2': 'playlist 2',
         '3': 'playlist 3',
@@ -42,16 +42,18 @@ commands = {
         '9': 'playlist 9',
 
         # numlock off
-        '\x1b[2~': 'stop', # 0/Insert
-        '\x1b[4~': 'playlist 1', # 1/End
+        '\x1b[2~': 'playlist 0', # 0/Insert
+        #'\x1b[4~': 'playlist 1', # 1/End
+        '\x1b[F':  'playlist 1', # 1/End
         '\x1b[B':  'playlist 2', # 2/Down
         '\x1b[6~': 'playlist 3', # 3/Page Down
         '\x1b[D':  'playlist 4', # 4/Left
         '\x1b[E':  'playlist 5', # 5/"5"
         '\x1b[C':  'playlist 6', # 6/Right
-        '\x1b[1~': 'playlist 7', # 7/Home
+        '\x1b[H':  'playlist 7', # 7/Home
         '\x1b[A':  'playlist 8', # 8/Up
         '\x1b[5~': 'playlist 9', # 9/Page Up
+        '\x1b[3~': 'pause',      # ./Del
 
         # full keyboard, not keypad:
         '\x03': 'quit', # ^c
@@ -83,11 +85,15 @@ def doaction(m, action):
     elif action == 'random off':
         m.random(0)
     elif action.startswith('playlist'):
-        m.stop()
-        m.clear()
-        m.setvol(100)
-        m.load(action)
-        m.play()
+        findplaylist = action.lower()
+        for p in m.listplaylists():
+            if p['playlist'].lower().startswith(findplaylist):
+                m.stop()
+                m.clear()
+                m.setvol(100)
+                m.load(p['playlist'])
+                m.play()
+                break
     else:
         print('Unrecognised command %s.\r' % repr(action))
 
