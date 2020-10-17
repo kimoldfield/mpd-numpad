@@ -36,8 +36,24 @@ From within the repository run the following commands:
 sudo -i
 mkdir -p ~pi/bin
 cp mpd-numpad ~pi/bin
-adduser mpc
+adduser --disabled-password mpc
 cp mpd-numpad.service /etc/systemd/system
 systemctl start mpd-numpad
 systemctl enable mpd-numpad
+```
+
+# mpd ncmpcpp
+
+`ncmpcpp` is a cursors base (full screen text) mpd client.
+`mpd-ncmpcpp.service` is a systemd service file which starts ncmpcpp on a
+new virtual console (tty7 by default) on system boot. To install it run:
+```
+sudo -i
+cp mpd-ncmpcpp.service /etc/systemd/system
+# if not already present then add user:
+adduser --disabled-password mpc 
+apt install ncmpcpp
+systemctl enable mpd-ncmpcpp
+systemctl start mpd-ncmpcpp
+systemctl status mpd-ncmpcpp
 ```

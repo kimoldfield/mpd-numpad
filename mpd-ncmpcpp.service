@@ -1,0 +1,15 @@
+[Unit]
+Description=mpd ncmpcpp
+
+[Service]
+Type=simple
+User=mpc
+ExecStartPre=/bin/chvt 7
+ExecStart=/usr/bin/ncmpcpp
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty7
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
