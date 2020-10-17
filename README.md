@@ -42,9 +42,9 @@ systemctl start mpd-numpad
 systemctl enable mpd-numpad
 ```
 
-# mpd ncmpcpp
+# ncmpcpp
 
-`ncmpcpp` is a cursors base (full screen text) mpd client.
+`ncmpcpp` is a ncurses based (full screen text) mpd client.
 `mpd-ncmpcpp.service` is a systemd service file which starts ncmpcpp on a
 new virtual console (tty7 by default) on system boot. To install it run:
 ```
